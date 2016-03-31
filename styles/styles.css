@@ -1,0 +1,130 @@
+.attestations { text-indent: 10px;
+   font-family: Verdana, arial; font-size: 12px;
+	 font-style: normal;
+	 text-align: left;
+   color: #000000;}
+
+.attestations b {text-indent: 10px;
+   font-family: Verdana, arial; font-size: 12px;
+	 font-style: normal;
+	 text-align: justify;
+   color: #000000;
+   font-weight:bold;}
+
+.attestations a:link, .attestations a:visited {color:#A02828;}
+.attestations a:active {color:#A02828}
+.attestations a:hover {text-decoration:none}
+.attestations a{text-decoration:none;}
+.attestations a img {border:0;}
+
+.att_h2{margin: 1em 0 !important; color:#A02828; font-family:  Verdana, arial; font-size: 16px !important;font-style: normal;}
+.att_h1{margin: 1em 0 !important;color:#A02828; font-family:  Verdana, arial; font-size: 18px !important;font-style: normal;}
+.att_h3{margin: .5em 0 !important;color:#A02828; font-family:  Verdana, arial; font-size: 14px !important;font-style: normal; vspace=0; text-shadow: 0.1em 0.1em 0.2em black;}
+
+.unvariable {color:#A02828; font-weight:bold; font-style: normal; }
+.bold_grey {color:#555555; font-family:  Verdana, arial; font-weight:bold; font-size: 11px;}
+
+.red_shadow{color:#A02828; font-family:  Verdana, arial; font-size: 12px; font-weight:bold; font-style: normal; text-shadow: 0.1em 0.1em 0.2em black;}
+
+.blockquote
+{
+	    padding: 5px;
+	    border: 1px solid #555555;
+	    background: #fff;
+	    -webkit-box-shadow: 0 0 10px #969696;
+	    -moz-box-shadow: 0 0 10px #969696;
+	    box-shadow: 0 0 10px #969696;
+	}
+
+.bordered   {border-style: solid;}
+
+#tags_proposition
+{     width: 500px;
+	    padding: 5px;
+	    padding-left: 25px;
+      border: 1px solid #669966;
+      background:#F9FFF9 url(/img/box-question.gif) 2px 2px no-repeat;
+	    color:#555555;
+      font-family:  Verdana, arial;
+      font-size: 10px;
+      text-align: justify;
+	}
+
+
+.txtsm{color:#555555; font-family:  Verdana, arial; font-size: 10px;}
+
+.txtsm b{font-weight:bold;}
+
+
+.txtsm input {
+    font-size: 9pt;
+	}
+
+.newBlockQuote
+{
+    border: #A02828 1px solid;
+    background-color: #CCCCCC;
+    padding: 20px;
+    font-family:  Verdana, arial; font-size: 12px;
+}
+.attestations_period {
+	display: inline-block;
+	background-repeat: no-repeat;
+	text-shadow: 0 0 0.2em white, 0 0 0.2em white;
+	padding-left: 80px;
+	min-height: 150px;
+	width: 250px;
+	margin: 1em;
+	text-align: right;
+	overflow: hidden;
+	font-size: 12px;
+	line-height: normal;
+	vertical-align: top;
+}
+.attestations_people {
+	float: left;
+	margin: 1em;
+	overflow: hidden;
+}
+.attestations ul {
+	font-family: Verdana, arial;
+	font-size: 12px;
+	list-style:none;
+}
+
+.people_list {
+	overflow: scroll;
+	width: 30em;
+	height: 20em;
+	white-space:nowrap;
+	display: inline-block;
+}
+.people_search {
+	width: 20em;
+}
+
+.person_add {
+	cursor: pointer;
+}
+
+#new_person {
+	white-space:nowrap;
+	display: inline-block;
+}
+
+#new_person label {
+	display: inline-block;
+	width: 10em;
+	text-align: right;
+}
+#new_person .button {
+	float: right;
+}
+.att_sub_level {
+	text-align: center;
+	font-weight: bold;
+	margin: 0;
+}
+.attestations_period p {
+	margin: .2em 0;
+}
