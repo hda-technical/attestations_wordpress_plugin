@@ -119,7 +119,7 @@ function current_level($level, $date, $calculate_date = '') {
             $l_temp = $level_index - $now_month / 12 + 3;
         }
         if ($l_temp >= 1) {
-            $l['num'] = $att_levels[floor($l_temp) ];
+            $l['num'] = $att_levels[floor($l_temp)];
             $l['str'] = to_roman(substr($l['num'], 0, 1)) . (strlen($l['num']) > 1 ? substr($l['num'], 1) : '');
         } else {
             $l['num'] = 0;

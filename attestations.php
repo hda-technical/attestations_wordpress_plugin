@@ -224,20 +224,42 @@ add_filter('parse_query', 'atttestations_parser');
 add_action( 'wp_ajax_att_people', 'attestations_get_people_callback' );
 
 function attestations_get_people_callback() {
-	global $wpdb;
+    global $wpdb;
 
     $teachers = get_all_teachers();
-	$results = $wpdb->get_results("SELECT p.id, p.name as pname, c.name as cname
-		FROM {$wpdb->prefix}people as p
-		LEFT JOIN {$wpdb->prefix}city as c on p.city_id=c.id ORDER BY p.name", ARRAY_N);
-	echo json_encode(['teachers' => $teachers, 'people' => $results]);
-	wp_die();
+    $results = $wpdb->get_results("SELECT p.id, p.name as pname, c.name as cname
+            FROM {$wpdb->prefix}people as p
+            LEFT JOIN {$wpdb->prefix}city as c on p.city_id=c.id ORDER BY p.name", ARRAY_N);
+    echo json_encode(['teachers' => $teachers, 'people' => $results]);
+    wp_die();
 }
 
 add_action( 'wp_ajax_att_person_add', 'attestations_new_person_callback' );
 
+function attestations_get_person_levels_callback() {
+    global $wpdb;
+    $person_id = intval($_POST['person_id']);
+    $period_id = intval($_POST['period_id']);
+    $results = $wpdb->get_results("SELECT att.level, att.date, att.id_moders
+                                FROM {$wpdb->prefix}attestation as att
+                                WHERE att.id_man='$person_id' AND att.id_period = '$period_id'
+                                ORDER BY att.date DESC, att.level", ARRAY_N);
+    $l = '0';
+    $s = '<span class=red_shadow>n&frasl;a</span>';
+    foreach ($results as $row) {
+        $l0 = current_level($row[0],$row[1]);
+        if ($l0['num']>=$l) {
+            $l = $l0['num'];
+            $s = $l0['str'];
+        }
+    }
+    echo json_encode(['n' => $l, 's'=> $s]);
+    wp_die();
+}
+add_action( 'wp_ajax_att_get_levels', 'attestations_get_person_levels_callback' );
+
 function attestations_new_person_callback() {
-	global $wpdb;
+    global $wpdb;
     $name = mb_convert_case(sanitize_text_field($_POST['name']),MB_CASE_TITLE);
     $city = mb_convert_case(sanitize_text_field($_POST['city']),MB_CASE_TITLE);
     if (!$name) {
@@ -383,7 +405,7 @@ submit_button(); ?>
             var l = jQuery('#people_list');
             l.empty();
             for (var p of people['people']) {
-                l.append('<li id="attestation_person_'+ p[0] +'"><span class="person_add dashicons dashicons-plus" person_id="'+p[0]+'"></span>'+p[1]+' ('+p[2]+')</li>');
+                l.append('<li id="attestation_person_'+ p[0] +'"><span class="person_add dashicons dashicons-plus" person_id="'+p[0]+'"></span>'+p[1]+' ('+p[2]+') <span class="att_level"></span></li>');
             }
             l = jQuery('#teachers');
             for (var per in people['teachers']) {
@@ -402,7 +424,7 @@ submit_button(); ?>
             }
             filter_periods();
             filter_teacher();
-            jQuery('#people_list>li>.person_add').click(function(){add_person(this.getAttribute('person_id'))});
+            jQuery('#people_list>li>.person_add').click(function(){move_person(this.getAttribute('person_id'))});
 		});
 	});
     jQuery(document).ready(function($) {
@@ -411,18 +433,26 @@ submit_button(); ?>
         });
     });
     jQuery('#people_search').bind('input',filter_people);
-    function add_person(id) {
+    function move_person(id) {
         var e = jQuery("#attestation_person_"+id);
-        e.detach().appendTo("#people_list_b");
-        jQuery("#attestation_person_"+id+">.person_add").addClass("dashicons-no").removeClass("dashicons-plus").click(
-            function(){remove_person(this.getAttribute('person_id'))});
+        if (e.closest('ul').attr('id') == 'people_list') {
+            e.appendTo("#people_list_b");
+            jQuery("#attestation_person_"+id+">.person_add").addClass("dashicons-no").removeClass("dashicons-plus");
+            discover_level(id);
+        } else {
+            e.children('.att_level').empty();
+            e.appendTo("#people_list");
+            jQuery("#attestation_person_"+id+">.person_add").removeClass("dashicons-no").addClass("dashicons-plus");
+            filter_people();
+        }
     }
-    function remove_person(id) {
-        var e = jQuery("#attestation_person_"+id);
-        e.detach().appendTo("#people_list");
-        jQuery("#attestation_person_"+id+">.person_add").removeClass("dashicons-no").addClass("dashicons-plus").click(
-            function(){add_person(this.getAttribute('person_id'))});
-        filter_people();
+    function discover_level(person_id) {
+        jQuery.post(ajaxurl, {'action':'att_get_levels','person_id':person_id,'period_id':jQuery('#attestation_period').val()},
+            function(response) {
+                r = jQuery.parseJSON(response);
+                jQuery("#attestation_person_"+person_id+">.att_level").html(r['s']);
+                jQuery("#attestation_person_"+person_id+">.att_level>br").remove();
+        });
     }
     function filter_people() {
         var pattern = jQuery('#people_search').val().toLowerCase();
@@ -431,6 +461,10 @@ submit_button(); ?>
            jQuery(this).toggle(v.search(pattern) >= 0);
         });
     }
+    jQuery('#attestation_period').change(function(){
+        for(let p of jQuery("#people_list_b>li>.person_add").toArray())
+            discover_level(p.getAttribute('person_id'));
+        });
     jQuery('#attestation_period,#attestation_level').change(filter_teacher);
     function filter_teacher() {
         var per = jQuery('#attestation_period').val();
