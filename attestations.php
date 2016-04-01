@@ -29,7 +29,6 @@ register_activation_hook(__FILE__, 'atttestations_install');
 register_deactivation_hook(__FILE__, 'atttestations_remove');
 
 function atttestations_install() {
-    global $wpdb;
     $the_page_title = 'Аттестация';
     $the_page_name = 'attestations';
     delete_option('attestations_page_title');
@@ -51,7 +50,6 @@ function atttestations_install() {
         $_p['post_category'] = array(1);
         $the_page_id = wp_insert_post($_p);
     } else {
-        $the_page_id = $the_page->ID;
         $the_page->post_status = 'publish';
         $the_page_id = wp_update_post($the_page);
     }
@@ -60,9 +58,6 @@ function atttestations_install() {
 }
 
 function atttestations_remove() {
-    global $wpdb;
-    $the_page_title = get_option('attestations_page_title');
-    $the_page_name = get_option('attestations_page_name');
     $the_page_id = get_option('attestations_page_id');
     if ($the_page_id) {
         wp_delete_post($the_page_id, true);
@@ -86,11 +81,10 @@ add_filter('query_vars', 'add_query_vars');
 function atttestations_parser($q) {
     $the_page_name = get_option('attestations_page_name');
     $the_page_id = get_option('attestations_page_id');
-    $qv = $q->query_vars;
     if (!$q->did_permalink AND (isset($q->query_vars['page_id'])) AND (intval($q->query_vars['page_id']) == $the_page_id)) {
         $q->set('attestations_page_is_called', TRUE);
         return $q;
-    } elseif (isset($q->query_vars['pagename']) AND (($q->query_vars['pagename'] == $the_page_name) OR ($_pos_found = strpos($q->query_vars['pagename'], $the_page_name . '/') === 0))) {
+    } elseif (isset($q->query_vars['pagename']) AND (($q->query_vars['pagename'] == $the_page_name) OR (strpos($q->query_vars['pagename'], $the_page_name . '/') === 0))) {
         $q->set('attestations_page_is_called', TRUE);
         return $q;
     } else {
@@ -102,7 +96,6 @@ function atttestations_parser($q) {
 function attestations_page_filter($posts) {
     global $wp_query;
     global $wpdb;
-    $the_page_name = get_option('attestations_page_name');
     if ($wp_query->get('attestations_page_is_called')) {
         $person_id = intval($wp_query->query_vars['att_person_id']);
         $body = '';
@@ -112,8 +105,7 @@ function attestations_page_filter($posts) {
 					LEFT JOIN {$wpdb->prefix}period as per on att.id_period=per.id
 					WHERE att.id_man='$person_id'
 					ORDER BY per.sort, per.name, att.date, att.level", ARRAY_N);
-            $level = "0";
-            $period = "";
+            $attest = [];
             $usedmoders = array($person_id);
             foreach ($results as $row) {
                 $attest[$row[0]]['level'] = $row[1];
@@ -125,6 +117,7 @@ function attestations_page_filter($posts) {
                 $attest[$row[0]]['history'].= substr($row[3], 5, 2) . "/" . substr($row[3], 0, 4) . " оценка <b>" . (to_roman(substr($row[1], 0, 1)) . (strlen($row[1]) > 1 ? substr($row[1], 1) : '')) . "</b>";
                 if ((($row[1] == '2') || ($row[1] == '3')) && strlen($row[2])) $attest[$row[0]]['history'].= "(" . $row[2] . ")";
                 $attest[$row[0]]['history'].= " <br>";
+                $matches = [];
                 if (preg_match_all("/([\d]+)/", $row[4], $matches)) {
                     foreach ($matches[1] as $id) {
                         if (($id > 0) && !in_array($id, $usedmoders)) $usedmoders[] = $id;
@@ -135,6 +128,7 @@ function attestations_page_filter($posts) {
 				FROM {$wpdb->prefix}people as p
 				LEFT JOIN {$wpdb->prefix}city as c on p.city_id=c.id
 				WHERE p.id in (" . implode(',', $usedmoders) . ")", ARRAY_N);
+            $people = [];
             foreach ($presults as $row) {
                 $people[$row[0]][name] = $row[1];
                 $people[$row[0]][city] = $row[3];
@@ -143,17 +137,16 @@ function attestations_page_filter($posts) {
             $title = $people[$person_id]['name'] . " (" . $people[$person_id]['city'] . ")";
             $body.= "<h3 class='att_h3'>Текущие уровни:</h3><br><span class=\"txtsm\">(на " . date('m') . "/" . date('Y') . ")</span>";
             foreach ($attest as $v1) {
-                if ($tempstr) $body.= "</p></div>";
                 $body.= "<div class=\"attestations_period\" style=\"background-image: url('" . plugins_url("/img/periods/" . $v1['per_web_name'] . "-g.gif", __FILE__) . "');\"><p>";
                 $examing_mods = "";
                 if (preg_match_all("/([\d]+)/", $v1['moders'], $matches)) {
                     $examing_mods_array = $matches[1];
                     foreach ($examing_mods_array as $id) if ($id > 0) $examing_mods.= "/ " . $people[$id]['name'] . "<br>";
                 }
-                $tempstr = current_level($v1['level'], $v1['date']);
-                $body.= "<h3 class='att_h3'>" . $v1['period'] . "</h3><b>Текущий&nbsp;уровень:</b>&nbsp;" . $tempstr['str'] . "<br>  <i> $examing_mods</i><span class=\"txtsm\"><br>- История аттестации -<br>" . $v1['history'] . "</span>";
+                $l = current_level($v1['level'], $v1['date']);
+                $body.= "<h3 class='att_h3'>" . $v1['period'] . "</h3><b>Текущий&nbsp;уровень:</b>&nbsp;" . $l['str'] . "<br>  <i> $examing_mods</i><span class=\"txtsm\"><br>- История аттестации -<br>" . $v1['history'] . "</span>";
+                $body.= "</p></div>";
             }
-            if ($tempstr) $body.= "</p></div>";
         } else {
             $title = 'Аттестованные в АИТ';
             $body.= '<h3>Принимают экзамены:</h3>';
@@ -283,8 +276,7 @@ function attestations_new_person_callback() {
         $wpdb->insert("{$wpdb->prefix}city",['name'=>$city,'web_name' => $webname, 'enable' => 1]);
         $city_id = $wpdb->insert_id;
     }
-    $person_id = $wpdb->get_var("SELECT p.id FROM {$wpdb->prefix}people as p WHERE p.name = '$name' AND p.city_id='$city_id'");
-    if ($person_id !== null) {
+    if ($wpdb->get_var("SELECT p.id FROM {$wpdb->prefix}people as p WHERE p.name = '$name' AND p.city_id='$city_id'") !== null) {
         echo json_encode(['error'=>'Такой человек уже есть']);
         wp_die();
     }
@@ -304,11 +296,10 @@ function attestations_create_menu() {
     }
 }
 function attestations_settings_page() {
-	global $wpdb, $current_user;
+    global $current_user;
     $l = attestations_current_user_levels();
     if (array_search('3',$l) === false && array_search('4',$l) === false)
         return false;
-
     $periods = get_attestation_periods();
 ?>
 <div class="wrap">
@@ -377,9 +368,9 @@ submit_button(); ?>
     jQuery('#add_person').click(function($) {
 
 		var data = {
-			'action': 'att_person_add',
-            'name': jQuery("#new_person_name").val(),
-            'city': jQuery("#new_person_city").val(),
+                    'action': 'att_person_add',
+                    'name': jQuery("#new_person_name").val(),
+                    'city': jQuery("#new_person_city").val()
 		};
 		jQuery.post(ajaxurl, data, function(response) {
 			r = jQuery.parseJSON(response);
@@ -391,7 +382,7 @@ submit_button(); ?>
                 jQuery("#new_person_city").val('');
                 var l = jQuery('#people_list_b');
                 l.append('<li id="attestation_person_'+ r[0] +'"><span class="person_add dashicons dashicons-no" person_id="'+r[0]+'"></span>'+r[1]+' ('+r[2]+')</li>')
-                    .click(function(){remove_person(r[0])});
+                    .click(function(){remove_person(r[0]);});
             }
         });
     });
@@ -525,7 +516,7 @@ submit_button(); ?>
 }
 
 function attestations_submitted() {
-	global $wpdb, $current_user, $att_levels;
+	global $wpdb, $att_levels;
     check_admin_referer('attestations_new');
     $l = attestations_current_user_levels();
     $_all_teachers = get_all_teachers();
@@ -628,11 +619,11 @@ function attestations_submitted() {
 add_action( 'admin_post_attestations_form', 'attestations_submitted' );
 
 function show_admin_notice() {
-    if($out = get_transient( get_current_user_id().'attestation_errors' ) ) {
+    if((($out = get_transient( get_current_user_id().'attestation_errors' ) ))) {
         delete_transient( get_current_user_id().'attestation_errors' );
         echo "<div class=\"error\"><p>$out</p></div>";
     }
-    if($out = get_transient( get_current_user_id().'attestation_ok' ) ) {
+    if((($out = get_transient( get_current_user_id().'attestation_ok' ) ))) {
         delete_transient( get_current_user_id().'attestation_ok' );
         echo "<div class=\"notice notice-success is-dismissible\"><p>$out</p></div>";
     }
@@ -687,4 +678,3 @@ function attestations_profile_fields( $user_id ) {
         update_usermeta($u->ID, 'attestations_person', 'null');
 	update_usermeta($user_id, 'attestations_person', $person_id);
 }
-?>

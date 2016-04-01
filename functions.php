@@ -58,6 +58,7 @@ function to_roman($num) { //$num=5;
     return $result;
 }
 function old_level_number($level, $date, $calculate_date = '') {
+    global $attestation_base_month;
     if ($calculate_date == '') {
         $now_month = date('Y') * 12 + date('m') - substr($date, 0, 4) * 12 - substr($date, 5, 2);
     } else {
@@ -76,7 +77,7 @@ function old_level_number($level, $date, $calculate_date = '') {
     }
     return $l;
 }
-function current_level($level, $date, $calculate_date = '') {
+function current_level($level, $d, $calculate_date = '') {
     global $attestation_base_month;
     global $att_levels;
     $date_format = 'Y-m-d';
@@ -87,7 +88,7 @@ function current_level($level, $date, $calculate_date = '') {
             $calculate_date = new Datetime;
         }
     }
-    $date = $date instanceof Datetime ? $date : date_create_from_format($date_format, $date);
+    $date = $d instanceof Datetime ? $d : date_create_from_format($date_format, $d);
     $revolution_date = date_create_from_format($date_format, get_revolution_date());
     $now_date = $calculate_date;
     $now_month = $now_date->format('Y') * 12 + $now_date->format('m') - $date->format('Y') * 12 - $date->format('m') - 1;
@@ -104,8 +105,7 @@ function current_level($level, $date, $calculate_date = '') {
             //обрахунок рівня за старою системою, якщо іспит складено за 3 і раніше роки до революції
             //print_R(array('old_level' => $_level, 'revo' => $revolution_date->format($date_format)));
             if ($_level > 0) {
-                $delta_month = $revolution_date->format('Y') * 12 + $revolution_date->format('m') - $date->format('Y') * 12 - $date->format('m') - 1;
-                $delta_month = $delta_month % 12;
+                $delta_month = ($revolution_date->format('Y') * 12 + $revolution_date->format('m') - $date->format('Y') * 12 - $date->format('m') - 1) % 12;
                 //				print_r($date->format($date_format));
                 $date = $revolution_date->sub(new DateInterval('P' . $delta_month . 'M'));
                 $now_month = $now_date->format('Y') * 12 + $now_date->format('m') - $date->format('Y') * 12 - $date->format('m') - 1;
@@ -192,4 +192,3 @@ function get_attestation_periods() {
     ORDER BY per.sort",ARRAY_N);
     return $attestation_periods;
 }
-?>
