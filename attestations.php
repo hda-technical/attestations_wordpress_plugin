@@ -424,15 +424,39 @@ submit_button(); ?>
         });
     });
     jQuery('#people_search').bind('input',filter_people);
+    function insert_sorted(list,item) {
+        var children = list.children();
+        var a = 0,b = children.length - 1;
+        var t = item.text();
+        if (t.localeCompare(children.eq(a).text()) < 0) {
+            item.prependTo(list);
+            return;
+        }
+        if (t.localeCompare(children.eq(b).text()) > 0) {
+            item.appendTo(list);
+            return;
+        }
+        while (b - a > 1) {
+            var c = Math.floor((a + b)/2);
+            if (t.localeCompare(children.eq(c).text()) < 0) {
+                b = c;
+            } else {
+                a = c
+            }
+        }
+        children.eq(a).after(item);
+    }
     function move_person(id) {
         var e = jQuery("#attestation_person_"+id);
         if (e.closest('ul').attr('id') == 'people_list') {
-            e.appendTo("#people_list_b");
+            insert_sorted(jQuery("#people_list_b"),e);
+            //e.appendTo("#people_list_b");
             jQuery("#attestation_person_"+id+">.person_add").addClass("dashicons-no").removeClass("dashicons-plus");
             discover_level(id);
         } else {
             e.children('.att_level').empty();
-            e.appendTo("#people_list");
+            insert_sorted(jQuery("#people_list"),e);
+            //e.appendTo("#people_list");
             jQuery("#attestation_person_"+id+">.person_add").removeClass("dashicons-no").addClass("dashicons-plus");
             filter_people();
         }
