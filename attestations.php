@@ -74,6 +74,7 @@ add_action('init', 'attestations_css');
 
 function add_query_vars($aVars) {
     $aVars[] = "att_person_id";
+    $aVars[] = "att_period_id";
     return $aVars;
 }
 
@@ -98,6 +99,7 @@ function attestations_page_filter($posts) {
     global $wpdb;
     if ($wp_query->get('attestations_page_is_called')) {
         $person_id = intval($wp_query->query_vars['att_person_id']);
+        $period_id = intval($wp_query->query_vars['att_period_id']);
         $body = '';
         if ($person_id) {
             $results = $wpdb->get_results(" SELECT per.name, att.level, att.mark, att.date, att.id_moders, per.web_name
@@ -147,6 +149,49 @@ function attestations_page_filter($posts) {
                 $body.= "<h3 class='att_h3'>" . $v1['period'] . "</h3><b>Текущий&nbsp;уровень:</b>&nbsp;" . $l['str'] . "<br>  <i> $examing_mods</i><span class=\"txtsm\"><br>- История аттестации -<br>" . $v1['history'] . "</span>";
                 $body.= "</p></div>";
             }
+        } else if ($period_id) {
+            global $att_levels;
+            $r = $wpdb->get_row("SELECT name, web_name FROM {$wpdb->prefix}period WHERE id='$period_id'");
+            $period = $r->name;
+            $period_wname = $r->web_name;
+            $results = $wpdb->get_results(
+                    "SELECT per.name as pname, att.level, att.mark, att.date, att.id_moders, att.id_man, p.name as p2name, city.name, city.web_name
+                        FROM {$wpdb->prefix}attestation as att 
+                        LEFT JOIN {$wpdb->prefix}period as per ON att.id_period=per.id
+                        LEFT JOIN {$wpdb->prefix}people as p ON att.id_man=p.id
+                        LEFT JOIN {$wpdb->prefix}city as city ON p.city_id=city.id
+                        WHERE per.id='$period_id' ORDER BY p.name, att.date, att.dateinsert", ARRAY_N);
+            $people = [];
+            foreach ($results as $row) {
+                $l = current_level($row[1], $row[3]);
+                if ($l['num'] == '0')
+                    continue;
+                $people[$l['num']][] = [
+                    'name' => $row[6],
+                    'city' => $row[7],
+                    'level_num' => $l['num'],
+                    'level_str' => $l['str'],
+                    'date' => $row[3],
+                    'id' => $row[5],
+                    'history' => substr($row[3], 5, 2) . "/" . substr($row[3], 0, 4) . " оценка <b>" . to_roman(substr($row[1], 0, 1)) . (strlen($row[1]) > 1 ? substr($row[1], 1) : '') . "</b>" . (strlen($row[2]) ? "(" . $row[2] . ")" : '') . "<br>"
+                    ];
+            }
+            
+            $title = "Аттестация по теме: " . $period;
+            $body.= "<br><img src=".plugins_url("/img/periods/$period_wname.gif",__FILE__)." border=0><br><b>Текущие уровни:</b> <br><span class=txtsm>(на " . date('m') . "/" . date('Y') . ")</span>";
+            $toplinks = [];
+            foreach ($att_levels as $ln) {
+                $pl = $people[$ln];
+                if (empty($pl))
+                    continue;
+                usort($pl, function($c1,$c2){return strcmp($c1['name'],$c2['name']);});
+                $body.= "<a name='$ln'></a><h3>" . to_roman(substr($ln, 0, 1)) . (strlen($ln) > 1 ? substr($ln, 1) : '') . "</h3><ul>";
+                $toplinks[]= "<a href='#" . $ln . "'>" . to_roman(substr($ln, 0, 1)) . (strlen($ln) > 1 ? substr($ln, 1) : '') . "</a> | ";
+                foreach($pl as $p)
+                    $body.= "<li><a href=\"" . add_query_arg('att_person_id', $p['id']) . "\">{$p['name']}</a>: {$p['level_str']} ({$p['city']})</li>";
+                $body.= '</ul>';
+            }
+            $body = '<div class="attestations">|' . join('|',$toplinks) . '|' . $body . '</div>';
         } else {
             $title = 'Аттестованные в АИТ';
             $body.= '<h3>Принимают экзамены:</h3>';
@@ -161,7 +206,7 @@ function attestations_page_filter($posts) {
                 if (empty($t[$period[2]]['4']) && empty($t[$period[2]]['3']))
                     continue;
                 $body.= "<div class=\"attestations_period\" style=\"background-image: url('" . plugins_url("/img/periods/{$period[1]}-g.gif", __FILE__) . "');\">
-	               <span class=txtsm><h3 class='att_h3'>{$period[0]}</h3>";
+	               <span class=txtsm><a href=\"" . add_query_arg('att_period_id', $period[2]) . "\"><h3 class='att_h3'>{$period[0]}</h3></a>";
                 if (!empty($t[$period[2]]['4'])) {
                     $body .= "<p class=\"att_sub_level\">Все уровни:</p>";
                     foreach($t[$period[2]]['4'] as $city => $pteachers) {

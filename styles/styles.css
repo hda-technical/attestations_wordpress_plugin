@@ -1,15 +1,16 @@
-.attestations { text-indent: 10px;
-   font-family: Verdana, arial; font-size: 12px;
-	 font-style: normal;
-	 text-align: left;
-   color: #000000;}
+.attestations { 
+                font-family: Verdana, arial; font-size: 12px;
+                font-style: normal;
+                text-align: left;
+                color: #000000;}
 
-.attestations b {text-indent: 10px;
-   font-family: Verdana, arial; font-size: 12px;
-	 font-style: normal;
-	 text-align: justify;
-   color: #000000;
-   font-weight:bold;}
+.attestations b {
+                 font-family: Verdana, arial; font-size: 12px;
+                 font-style: normal;
+                 text-align: justify;
+                 color: #000000;
+                 font-weight:bold;}
+.attestations ul li br { display: none;}
 
 .attestations a:link, .attestations a:visited {color:#A02828;}
 .attestations a:active {color:#A02828}
@@ -28,27 +29,27 @@
 
 .blockquote
 {
-	    padding: 5px;
-	    border: 1px solid #555555;
-	    background: #fff;
-	    -webkit-box-shadow: 0 0 10px #969696;
-	    -moz-box-shadow: 0 0 10px #969696;
-	    box-shadow: 0 0 10px #969696;
-	}
+    padding: 5px;
+    border: 1px solid #555555;
+    background: #fff;
+    -webkit-box-shadow: 0 0 10px #969696;
+    -moz-box-shadow: 0 0 10px #969696;
+    box-shadow: 0 0 10px #969696;
+}
 
 .bordered   {border-style: solid;}
 
 #tags_proposition
 {     width: 500px;
-	    padding: 5px;
-	    padding-left: 25px;
+      padding: 5px;
+      padding-left: 25px;
       border: 1px solid #669966;
       background:#F9FFF9 url(/img/box-question.gif) 2px 2px no-repeat;
-	    color:#555555;
+      color:#555555;
       font-family:  Verdana, arial;
       font-size: 10px;
       text-align: justify;
-	}
+}
 
 
 .txtsm{color:#555555; font-family:  Verdana, arial; font-size: 10px;}
@@ -58,7 +59,7 @@
 
 .txtsm input {
     font-size: 9pt;
-	}
+}
 
 .newBlockQuote
 {
@@ -68,63 +69,63 @@
     font-family:  Verdana, arial; font-size: 12px;
 }
 .attestations_period {
-	display: inline-block;
-	background-repeat: no-repeat;
-	text-shadow: 0 0 0.2em white, 0 0 0.2em white;
-	padding-left: 80px;
-	min-height: 150px;
-	width: 250px;
-	margin: 1em;
-	text-align: right;
-	overflow: hidden;
-	font-size: 12px;
-	line-height: normal;
-	vertical-align: top;
+    display: inline-block;
+    background-repeat: no-repeat;
+    text-shadow: 0 0 0.2em white, 0 0 0.2em white;
+    padding-left: 80px;
+    min-height: 150px;
+    width: 250px;
+    margin: 1em;
+    text-align: right;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: normal;
+    vertical-align: top;
 }
 .attestations_people {
-	float: left;
-	margin: 1em;
-	overflow: hidden;
+    float: left;
+    margin: 1em;
+    overflow: hidden;
 }
 .attestations ul {
-	font-family: Verdana, arial;
-	font-size: 12px;
-	list-style:none;
+    font-family: Verdana, arial;
+    font-size: 12px;
+    list-style:none;
 }
 
 .people_list {
-	overflow: scroll;
-	width: 30em;
-	height: 20em;
-	white-space:nowrap;
-	display: inline-block;
+    overflow: scroll;
+    width: 30em;
+    height: 20em;
+    white-space:nowrap;
+    display: inline-block;
 }
 .people_search {
-	width: 20em;
+    width: 20em;
 }
 
 .person_add {
-	cursor: pointer;
+    cursor: pointer;
 }
 
 #new_person {
-	white-space:nowrap;
-	display: inline-block;
+    white-space:nowrap;
+    display: inline-block;
 }
 
 #new_person label {
-	display: inline-block;
-	width: 10em;
-	text-align: right;
+    display: inline-block;
+    width: 10em;
+    text-align: right;
 }
 #new_person .button {
-	float: right;
+    float: right;
 }
 .att_sub_level {
-	text-align: center;
-	font-weight: bold;
-	margin: 0;
+    text-align: center;
+    font-weight: bold;
+    margin: 0;
 }
 .attestations_period p {
-	margin: .2em 0;
+    margin: .2em 0;
 }
