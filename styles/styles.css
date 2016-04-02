@@ -91,6 +91,9 @@
     font-family: Verdana, arial;
     font-size: 12px;
     list-style:none;
+    -moz-column-width: 30em; /* Firefox */
+    -webkit-column-width: 30em; /* webkit, Safari, Chrome */
+    column-width: 30em;
 }
 
 .people_list {
