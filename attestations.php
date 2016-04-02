@@ -151,6 +151,7 @@ function attestations_page_filter($posts) {
             }
         } else if ($period_id) {
             global $att_levels;
+            global $att_rlevels;
             $r = $wpdb->get_row("SELECT name, web_name FROM {$wpdb->prefix}period WHERE id='$period_id'");
             $period = $r->name;
             $period_wname = $r->web_name;
@@ -160,13 +161,15 @@ function attestations_page_filter($posts) {
                         LEFT JOIN {$wpdb->prefix}period as per ON att.id_period=per.id
                         LEFT JOIN {$wpdb->prefix}people as p ON att.id_man=p.id
                         LEFT JOIN {$wpdb->prefix}city as city ON p.city_id=city.id
-                        WHERE per.id='$period_id' ORDER BY p.name, att.date, att.dateinsert", ARRAY_N);
+                        WHERE per.id='$period_id' ORDER BY p.name, att.date DESC, att.dateinsert", ARRAY_N);
             $people = [];
             foreach ($results as $row) {
                 $l = current_level($row[1], $row[3]);
                 if ($l['num'] == '0')
                     continue;
-                $people[$l['num']][] = [
+                if (isset($people[$row[5]]) && $att_rlevels[$people[$row[5]]['level_num']] >= $att_rlevels[$l['num']])
+                    continue;
+                $people[$row[5]] = [
                     'name' => $row[6],
                     'city' => $row[7],
                     'level_num' => $l['num'],
@@ -176,12 +179,16 @@ function attestations_page_filter($posts) {
                     'history' => substr($row[3], 5, 2) . "/" . substr($row[3], 0, 4) . " оценка <b>" . to_roman(substr($row[1], 0, 1)) . (strlen($row[1]) > 1 ? substr($row[1], 1) : '') . "</b>" . (strlen($row[2]) ? "(" . $row[2] . ")" : '') . "<br>"
                     ];
             }
+            $levels = [];
+            foreach($people as $id => $p) {
+                $levels[$p['level_num']][] = $p;
+            }
             
             $title = "Аттестация по теме: " . $period;
             $body.= "<br><img src=".plugins_url("/img/periods/$period_wname.gif",__FILE__)." border=0><br><b>Текущие уровни:</b> <br><span class=txtsm>(на " . date('m') . "/" . date('Y') . ")</span>";
             $toplinks = [];
             foreach ($att_levels as $ln) {
-                $pl = $people[$ln];
+                $pl = $levels[$ln];
                 if (empty($pl))
                     continue;
                 usort($pl, function($c1,$c2){return strcmp($c1['name'],$c2['name']);});

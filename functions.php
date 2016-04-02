@@ -20,6 +20,14 @@ $att_levels = array(
 		5 => '3',
 		6 => '4'
 	);
+$att_rlevels = array(
+		'1' => 1,
+		'1+' => 2,
+		'2' => 3,
+		'2+' => 4,
+		'3' => 5,
+		'4' => 6
+	);
 
 $attestation_base_month = 36;
 
