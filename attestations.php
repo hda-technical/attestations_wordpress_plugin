@@ -478,13 +478,13 @@ jQuery('#attestation_list .att_message').click(function(){
     var pos = jQuery(this).offset();
     jQuery('#att_message').show();
     jQuery('#att_message').offset({top: pos.top + 10,left:pos.left + 10});
-    jQuery('#att_message #att_message_text').text('Уважаемые администраторы сайта hda.org.ru,\r\n'+
+    jQuery('#att_message textarea').val('Уважаемые администраторы сайта hda.org.ru,\r\n'+
                                                   'Я считаю, что запись об аттестации: ' + jQuery(this).parent().text() +
                                                   '\r\nБыла сделана ошибочно, и вот почему:\r\n\r\n\r\n<?php echo $current_user->display_name; ?>');
     });
 jQuery('#att_message #att_send').click(function(){
     jQuery('#att_message').hide();
-    jQuery.post(ajaxurl, {'action': 'attestation_report','message': jQuery('#att_message #att_message_text').text()}, function(response) {
+    jQuery.post(ajaxurl, {'action': 'attestation_report','message': jQuery('#att_message textarea').val()}, function(response) {
             r = jQuery.parseJSON(response);
             if (r['error']) {
                 jQuery(".error>p").last().text(r['error']);
