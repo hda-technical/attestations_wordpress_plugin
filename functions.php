@@ -31,7 +31,7 @@ $att_rlevels = array(
 
 $attestation_base_month = 36;
 
-define('ATTESTATIONS_REMOVE_TIME_THRESHOLD', 86400*14);
+define('ATTESTATIONS_REMOVE_TIME_THRESHOLD', 86400*1);
 
 function get_revolution_date() {
 	return "2015-03-01";
