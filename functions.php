@@ -20,8 +20,18 @@ $att_levels = array(
 		5 => '3',
 		6 => '4'
 	);
+$att_rlevels = array(
+		'1' => 1,
+		'1+' => 2,
+		'2' => 3,
+		'2+' => 4,
+		'3' => 5,
+		'4' => 6
+	);
 
 $attestation_base_month = 36;
+
+define('ATTESTATIONS_REMOVE_TIME_THRESHOLD', 86400*14);
 
 function get_revolution_date() {
 	return "2015-03-01";
@@ -145,7 +155,7 @@ function attestations_current_user_levels()
         return $attestations_current_user_levels;
     $results = $wpdb->get_results("SELECT att.id_period, att.level, att.date
             FROM {$wpdb->prefix}attestation as att
-            WHERE att.id_man='$person_id'
+            WHERE att.id_man='$person_id' AND att.valid
             ORDER BY att.date, att.level", ARRAY_N);
     $res = [];
     foreach ($results as $row) {
@@ -168,7 +178,7 @@ function get_all_teachers() {
 					LEFT JOIN {$wpdb->prefix}period as per on att.id_period=per.id
 					LEFT JOIN {$wpdb->prefix}people as p on att.id_man=p.id
 					LEFT JOIN {$wpdb->prefix}city as city on p.city_id=city.id
-					WHERE att.level='3' OR att.level='4' ORDER BY per.sort, city.name, p2name, att.date", ARRAY_N);
+					WHERE (att.level='3' OR att.level='4') AND att.valid ORDER BY per.sort, city.name, p2name, att.date", ARRAY_N);
 	$teachers = [];
 	foreach ($results as $row) {
 		$templevel = current_level($row[1], $row[3]);
@@ -191,4 +201,15 @@ function get_attestation_periods() {
     FROM {$wpdb->prefix}period as per
     ORDER BY per.sort",ARRAY_N);
     return $attestation_periods;
+}
+
+function get_attestation_cities() {
+    global $wpdb;
+    global $attestation_cities;
+    if (isset($attestation_cities))
+        return $attestation_cities;
+    $attestation_cities = $wpdb->get_results("SELECT name,web_name,id
+    FROM {$wpdb->prefix}city
+    ORDER BY name",ARRAY_N);
+    return $attestation_cities;
 }

@@ -91,6 +91,9 @@
     font-family: Verdana, arial;
     font-size: 12px;
     list-style:none;
+    -moz-column-width: 30em; /* Firefox */
+    -webkit-column-width: 30em; /* webkit, Safari, Chrome */
+    column-width: 30em;
 }
 
 .people_list {
@@ -128,4 +131,23 @@
 }
 .attestations_period p {
     margin: .2em 0;
+}
+
+.att_remove {
+  cursor: pointer;
+  color: red;
+}
+.att_message {
+  cursor: pointer;
+}
+#att_message {
+  display: none;
+  position: absolute;
+  height: auto;
+  width: 500px;
+  z-index: 100;
+}
+#att_message textarea {
+  width: 100%;
+  min-height: 8em;
 }
