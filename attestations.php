@@ -76,6 +76,7 @@ add_action('init', 'attestations_css');
 function add_query_vars($aVars) {
     $aVars[] = "att_person_id";
     $aVars[] = "att_period_id";
+    $aVars[] = "att_city_id";
     return $aVars;
 }
 add_filter('query_vars', 'add_query_vars');
