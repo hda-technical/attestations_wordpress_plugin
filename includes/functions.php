@@ -1,4 +1,5 @@
 <?php
+defined('ABSPATH') or die('');
 $month['01']='Январь';
 $month['02']='Февраль';
 $month['03']='Март';
