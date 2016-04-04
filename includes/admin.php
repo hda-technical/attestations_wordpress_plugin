@@ -14,7 +14,7 @@ function attestations_get_people_callback() {
     wp_die();
 }
 
-function attestations_get_person_levels_callback() {
+function attestations_get_person_level_callback() {
     global $wpdb;
     $person_id = intval($_POST['person_id']);
     $period_id = intval($_POST['period_id']);
@@ -236,7 +236,7 @@ function attestations_settings_page() {
         }
     }
     function discover_level(person_id) {
-        jQuery.post(ajaxurl, {'action':'att_get_levels','person_id':person_id,'period_id':jQuery('#attestation_period').val()},
+        jQuery.post(ajaxurl, {'action':'att_get_level','person_id':person_id,'period_id':jQuery('#attestation_period').val()},
             function(response) {
                 r = jQuery.parseJSON(response);
                 jQuery("#attestation_person_"+person_id+">.att_level").html(r['s']);

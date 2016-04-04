@@ -88,7 +88,7 @@ function old_level_number($level, $date, $calculate_date = '') {
     }
     return $l;
 }
-function current_level($level, $d, $calculate_date = '') {
+function current_level($level, $d, $calculate_date = '', $nobr = false) {
     global $attestation_base_month;
     global $att_levels;
     $date_format = 'Y-m-d';
@@ -138,6 +138,8 @@ function current_level($level, $d, $calculate_date = '') {
         }
         $l['str'] = "<span class=red_shadow>{$l['str']}</span><br><span class=txtsm>не подтвержден <b>" . to_roman(substr($level, 0, 1)) . (strlen($level) > 1 ? substr($level, 1) : '') . "</b></span>";
     }
+    if ($nobr)
+        $l['str'] = str_replace('<br>','',$l['str']);
     return $l;
 }
 

@@ -16,6 +16,35 @@ function atttestations_parser($q) {
     }
 }
 
+function get_level_popup_script() {
+return '<div id="attestation_levels_popup">
+<span class="dashicons dashicons-no"></span><span id="attestation_levels_popup_content"></span>
+</div>
+<script type="text/javascript">
+    jQuery("#attestation_levels_popup .dashicons-no").click(function(){jQuery(\'#attestation_levels_popup\').hide();});
+    jQuery(".attestation_person").click(function(){
+        var person_id = this.getAttribute(\'att_pid\');
+        var person_elem = jQuery(this);
+        var pos = jQuery(this).offset();
+        jQuery.post(ajaxurl, {\'action\':\'att_get_levels\',\'person_id\':person_id},
+            function(response) {
+                r = jQuery.parseJSON(response);
+                var ltxt = \'\';
+                if (r.length == 0) {
+                    ltxt = "<span class=\\"red_shadow\\">n&frasl;a</span>";
+                }
+                for(var l in r) {
+                    ltxt += "<span class=\\"red_shadow\\">"+r[l]["period"]+"</span>: "+r[l]["level_str"]+"<br>";
+                }
+                jQuery(\'#attestation_levels_popup\').show();
+                jQuery(\'#attestation_levels_popup\').offset({top: pos.top + 10,left:pos.left + 10});
+                jQuery(\'#attestation_levels_popup_content\').html(ltxt+"<a href=\\""+person_elem.attr("href")+"\\">Подробнее &gt;&gt;&gt;</a>");
+        });        
+        return false;
+    });
+</script>';    
+}
+
 function attestations_make_main_page() {
     global $wpdb;
     $title = 'Аттестованные в АИТ';
@@ -64,7 +93,7 @@ function attestations_make_main_page() {
             $body.= "<h3 class='att_h3'><a name='$letter'></a>$letter</h3><ul>";
             $toplinks.= "<a href='#$letter';>$letter</a>&nbsp;";
         }
-        $body.= "<li><a href=\"" . add_query_arg('att_person_id', $row[0]) . "\">" . $row['1'] . "</a> <span class='txtsm'>(<a href=\"" . add_query_arg('att_city_id', $row[3]) . "\">" . $row[2] . "</a>)</span></li>";
+        $body.= "<li><a att_pid=\"{$row[0]}\" class=\"attestation_person\" href=\"" . add_query_arg('att_person_id', $row[0]) . "\">" . $row['1'] . "</a> <span class='txtsm'>(<a href=\"" . add_query_arg('att_city_id', $row[3]) . "\">" . $row[2] . "</a>)</span></li>";
     }
     $body.= "</span></div>";
     $toplinks.='<br>';
@@ -72,13 +101,36 @@ function attestations_make_main_page() {
         $toplinks.= "<a href=\"".add_query_arg('att_city_id',$c[2])."\">{$c[0]}</a> ";
     }
     $body = '<div class="attestations"> ' . $toplinks . $body . '</div>';
+    $body.= get_level_popup_script();
+    
     return [$title,$body];
 }
+
+function attestations_get_person_levels_callback() {
+    global $wpdb;
+    global $att_rlevels;
+    $person_id = intval($_POST['person_id']);
+    $results = $wpdb->get_results("SELECT per.name, att.level, att.mark, att.date, att.id_moders, per.web_name
+            FROM {$wpdb->prefix}attestation as att
+            LEFT JOIN {$wpdb->prefix}period as per on att.id_period=per.id
+            WHERE att.id_man='$person_id' AND att.valid
+            ORDER BY per.sort, per.name, att.date, att.level", ARRAY_N);
+    $attest = [];
+    foreach ($results as $row) {
+        $l = current_level($row[1], $row[3],'',true);
+        if ($l['num'] == '0') continue;
+        if (isset($attest[$row[5]]) && $att_rlevels[$attest[$row[5]]['level_num']] >= $att_rlevels[$l['num']]) continue;
+        $attest[$row[5]] = ['level_num' => $l['num'],'level_str' => $l['str'],'period'=>$row[0]];
+    }
+    echo json_encode($attest);
+    wp_die();
+}
+
 
 function attestations_make_person_page($person_id) {
     global $wpdb;
     $body = '';
-    $results = $wpdb->get_results(" SELECT per.name, att.level, att.mark, att.date, att.id_moders, per.web_name
+    $results = $wpdb->get_results("SELECT per.name, att.level, att.mark, att.date, att.id_moders, per.web_name
             FROM {$wpdb->prefix}attestation as att
             LEFT JOIN {$wpdb->prefix}period as per on att.id_period=per.id
             WHERE att.id_man='$person_id' AND att.valid
@@ -187,10 +239,10 @@ function attestations_make_city_page($city_id) {
             $letter = mb_substr($row['1'], 0, 1);
             $body.= "<h3 class='att_h3'><a name='$letter'></a>$letter</h3><ul>";
         }
-        $body.= "<li><a href=\"" . add_query_arg('att_person_id', $row[0]) . "\">" . $row['1'] . "</a></li>";
+        $body.= "<li><a att_pid=\"{$row[0]}\" class=\"attestation_person\" href=\"" . remove_query_arg('att_city_id',add_query_arg('att_person_id', $row[0])) . "\">" . $row['1'] . "</a></li>";
     }
     $body.= "</span></div>";
-    $body = '<div class="attestations">' . $body . '</div>';
+    $body = '<div class="attestations">' . $body . '</div>' . get_level_popup_script();
     return [$title,$body];
 }
 

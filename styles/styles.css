@@ -151,3 +151,22 @@
   width: 100%;
   min-height: 8em;
 }
+
+#attestation_levels_popup {
+  display: none;
+  position: absolute;
+  height: auto;
+  width: auto;
+  z-index: 100;
+  background: white;
+  padding: .5em;
+  border: solid 1pt #A02828;
+}
+
+#attestation_levels_popup .dashicons-no {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    color: #444;
+}
