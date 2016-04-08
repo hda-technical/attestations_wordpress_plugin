@@ -28,6 +28,7 @@ return '<div id="attestation_levels_popup">
         var pos = jQuery(this).offset();
         jQuery.post(ajaxurl, {\'action\':\'att_get_levels\',\'person_id\':person_id},
             function(response) {
+                console.log(response);
                 r = jQuery.parseJSON(response);
                 var ltxt = \'\';
                 if (r.length == 0) {
@@ -202,7 +203,7 @@ function attestations_make_period_page($period_id) {
         $people[$row[5]] = ['cid'=> $row[9],'name' => $row[6], 'city' => $row[7], 'level_num' => $l['num'], 'level_str' => $l['str'], 'date' => $row[3], 'id' => $row[5], 'history' => substr($row[3], 5, 2) . "/" . substr($row[3], 0, 4) . " оценка <b>" . to_roman(substr($row[1], 0, 1)) . (strlen($row[1]) > 1 ? substr($row[1], 1) : '') . "</b>" . (strlen($row[2]) ? "(" . $row[2] . ")" : '') . "<br>"];
     }
     $levels = [];
-    foreach ($people as $id => $p) {
+    foreach ($people as $p) {
         $levels[$p['level_num']][] = $p;
     }
     $title = "Аттестация по теме: " . $period;
@@ -269,7 +270,7 @@ function attestations_page_filter($posts) {
         $posts[0]->post_content = $r[1];
         $posts[0]->post_type = 'page';
         $posts[0]->comment_status = 'closed';
-        $posts[0]->post_name = $title;
+        $posts[0]->post_name = $r[0];
     }
     return $posts;
 }

@@ -104,12 +104,13 @@ var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
 require_once (dirname(__FILE__) . '/includes/main_page.php');
 add_filter('the_posts', 'attestations_page_filter');
 add_filter('parse_query', 'atttestations_parser');
+add_action('wp_ajax_nopriv_att_get_levels', 'attestations_get_person_levels_callback');
 add_action('wp_ajax_att_get_levels', 'attestations_get_person_levels_callback');
 
 require_once (dirname(__FILE__) . '/includes/admin.php');
 add_action('wp_ajax_att_people', 'attestations_get_people_callback');
 add_action('wp_ajax_att_person_add', 'attestations_new_person_callback');
-add_action('wp_ajax_nopriv_att_get_level', 'attestations_get_person_level_callback');
+add_action('wp_ajax_att_get_level', 'attestations_get_person_level_callback');
 
 add_action('admin_post_attestations_form', 'attestations_submitted');
 add_action('admin_notices', "show_admin_notice");
