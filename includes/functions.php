@@ -137,6 +137,8 @@ function current_level($level, $d, $calculate_date = '', $nobr = false) {
             $l['str'] = "n&frasl;a";
         }
         $l['str'] = "<span class=red_shadow>{$l['str']}</span><br><span class=txtsm>не подтвержден <b>" . to_roman(substr($level, 0, 1)) . (strlen($level) > 1 ? substr($level, 1) : '') . "</b></span>";
+        $l['str'].= "<br><span class=txtsm>до " . $date->format('m') . "/" . ($date->format('Y')) . "</span>";
+
     }
     if ($nobr)
         $l['str'] = str_replace('<br>','',$l['str']);

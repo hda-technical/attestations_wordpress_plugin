@@ -252,6 +252,8 @@ function attestations_make_city_page($city_id) {
 function attestations_page_filter($posts) {
     global $wp_query;
     if ($wp_query->get('attestations_page_is_called')) {
+        if (count($posts) > 0 && $posts[0]->ID != get_option('attestations_page_id'))
+            return $posts;
         $person_id = intval($wp_query->query_vars['att_person_id']);
         $period_id = intval($wp_query->query_vars['att_period_id']);
         $city_id = intval($wp_query->query_vars['att_city_id']);
@@ -271,6 +273,9 @@ function attestations_page_filter($posts) {
         $posts[0]->post_type = 'page';
         $posts[0]->comment_status = 'closed';
         $posts[0]->post_name = $r[0];
+	$posts[0]->post_date = date('1970-01-01 18:57:33');
+	$posts[0]->post_date_gmt = date('1970-01-01 18:57:33');
+	$posts[0]->post_category = 'Internal';
     }
     return $posts;
 }
