@@ -132,3 +132,22 @@
 .attestations_period p {
     margin: .2em 0;
 }
+
+.att_remove {
+  cursor: pointer;
+  color: red;
+}
+.att_message {
+  cursor: pointer;
+}
+#att_message {
+  display: none;
+  position: absolute;
+  height: auto;
+  width: 500px;
+  z-index: 100;
+}
+#att_message textarea {
+  width: 100%;
+  min-height: 10em;
+}
