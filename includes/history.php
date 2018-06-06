@@ -122,7 +122,7 @@ function attestations_history_page() {
     foreach ($attestations as $a) {
         $ids = array_slice(explode(':', $a[2]), 1, -1);
         $ts = join(',', array_map(function ($i) use ($teachers) {
-            return $teachers[$i]['name'];
+            return array_key_exists($i, $teachers)?$teachers[$i]['name']:'';
         }, $ids));
         $tcls = join(' ', array_map(function ($i) {
             return "attest_t$i";
@@ -131,7 +131,7 @@ function attestations_history_page() {
         $d2s = strftime("Y-m-d", $d2);
         $s = '<span att_id="' . $a[0] . '" class="dashicons dashicons-no ' . (($d2 >= (time() - ATTESTATIONS_REMOVE_TIME_THRESHOLD)) ? 'att_remove' : 'att_message') . '"></span>';
         $s = $a[9] ? $s : '<span class="dashicons dashicons-dismiss"></span>';
-        echo "<li d1=\"{$a[6]}\" d2=\"{$d2s}\" class=\"attest_u{$a[8]} attest_pr{$a[3]} attest_c{$a[12]} attest_l{$att_rlevels[$a[4]]} $tcls\">{$s}<em>{$a[7]}/{$users[$a[8]]->display_name}</em> / {$a[6]} — <b>{$a[13]}</b> <span class=\"red_shadow\">" . to_roman(substr($a[4], 0, 1)) . (strlen($a[4]) > 1 ? substr($a[4], 1) : '') . "{$a[5]}</span> {$a[10]} ({$a[11]}): <span class=\"txtsm\">$ts" . ($a[9] ? '' : ' / Запись удалена') . "</span></li>";
+        echo "<li d1=\"{$a[6]}\" d2=\"{$d2s}\" class=\"attest_u{$a[8]} attest_pr{$a[3]} attest_c{$a[12]} attest_l{$att_rlevels[$a[4]]} $tcls\">{$s}<em>{$a[7]}/".($users[$a[8]]?$users[$a[8]]->display_name:'')."</em> / {$a[6]} — <b>{$a[13]}</b> <span class=\"red_shadow\">" . to_roman(substr($a[4], 0, 1)) . (strlen($a[4]) > 1 ? substr($a[4], 1) : '') . "{$a[5]}</span> {$a[10]} ({$a[11]}): <span class=\"txtsm\">$ts" . ($a[9] ? '' : ' / Запись удалена') . "</span></li>";
     }
 ?>
 </ul>
