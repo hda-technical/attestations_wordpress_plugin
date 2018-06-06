@@ -318,6 +318,7 @@ function attestations_settings_page() {
  ******************************************************************************/
 function attestations_submitted() {
     global $wpdb, $att_levels;
+    attestations_create_menu(); // To register the slugs for redirect
     check_admin_referer('attestations_new');
     $l = attestations_current_user_levels();
     $_all_teachers = get_all_teachers();
@@ -329,28 +330,28 @@ function attestations_submitted() {
     $period = intval($_POST['period']);
     $level = intval($_POST['level']);
     $date = sanitize_text_field($_POST['date']);
-    $people = array_map(intval, explode(':', $_POST['people']));
-    $teachers = array_map(intval, explode(':', $_POST['teachers']));
+    $people = array_map('intval', explode(':', $_POST['people']));
+    $teachers = array_map('intval', explode(':', $_POST['teachers']));
     if ($level < 1 || $level > 6) {
         set_transient(get_current_user_id() . 'attestation_errors', "Не бывает такого уровня");
-        die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+        die(wp_redirect(menu_page_url(ATTESTATIONS_MENU_SLUG)));
     }
     if ($wpdb->get_var("SELECT per.id FROM {$wpdb->prefix}period as per WHERE per.id = '$period'") === null) {
         set_transient(get_current_user_id() . 'attestation_errors', "Не бывает такого периода");
-        die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+        die(wp_redirect(menu_page_url(ATTESTATIONS_MENU_SLUG)));
     }
     if (empty($people) || (array_search(0, $people) !== false)) {
         set_transient(get_current_user_id() . 'attestation_errors', "Не выбраны экзаменованные");
-        die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+        die(wp_redirect(menu_page_url(ATTESTATIONS_MENU_SLUG)));
     }
     if (empty($teachers) || (array_search(0, $teachers) !== false)) {
         set_transient(get_current_user_id() . 'attestation_errors', "Не выбраны экзаменаторы");
-        die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+        die(wp_redirect(menu_page_url(ATTESTATIONS_MENU_SLUG)));
     }
     $d = DateTime::createFromFormat("Y-m-d", $date);
     if (!$d || $d->format("Y-m-d") != $date) {
         set_transient(get_current_user_id() . 'attestation_errors', "Неправильно указана дата");
-        die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+        die(wp_redirect(menu_page_url(ATTESTATIONS_MENU_SLUG)));
     }
     set_transient(get_current_user_id() . 'attestation_errors', "");
     $allowed = false;
@@ -370,7 +371,7 @@ function attestations_submitted() {
                 }
                 if (!$_a) {
                     set_transient(get_current_user_id() . 'attestation_errors', "Эти люди не могут принимать этот уровень");
-                    die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+                    die(wp_redirect(menu_page_url(ATTESTATIONS_MENU_SLUG)));
                 }
             }
         }
@@ -381,7 +382,7 @@ function attestations_submitted() {
             foreach ($teachers as $t) {
                 if ($all_teachers[$period][$t] != '3' && $all_teachers[$period][$t] != '4') {
                     set_transient(get_current_user_id() . 'attestation_errors', "Эти люди не могут принимать этот уровень");
-                    die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+                    die(wp_redirect(menu_page_url(ATTESTATIONS_MENU_SLUG)));
                 }
             }
         }
@@ -392,14 +393,14 @@ function attestations_submitted() {
             foreach ($teachers as $t) {
                 if ($all_teachers[$period][$t] != '4') {
                     set_transient(get_current_user_id() . 'attestation_errors', "Эти люди не могут принимать этот уровень");
-                    die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+                    die(wp_redirect(menu_page_url(ATTESTATIONS_MENU_SLUG)));
                 }
             }
         }
     }
     if (!$allowed) {
         set_transient(get_current_user_id() . 'attestation_errors', "Вы не можете принимать этот уровень");
-        die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+        die(wp_redirect(menu_page_url(ATTESTATIONS_MENU_SLUG)));
     }
     $uid = get_current_user_id();
     $common_fields = "':" . join(':', $teachers) . ":','$period','{$att_levels[$level]}',NULL,'$date',now(),$uid,'1'";
@@ -410,7 +411,7 @@ function attestations_submitted() {
     $query = "INSERT INTO {$wpdb->prefix}attestation (id_man,id_moders,id_period,level,mark,date,dateinsert,user_id,valid) VALUES " . implode(',', $values);
     if ($wpdb->query($query) === false) set_transient(get_current_user_id() . 'attestation_errors', "Ошибка добавления записей в базу");
     else set_transient(get_current_user_id() . 'attestation_ok', "Записи добавлены в базу");
-    die(wp_redirect(admin_url('admin.php?page=attestations%2Fattestations.php')));
+    die(wp_redirect(menu_page_url(ATTESTATIONS_HISTORY_SLUG)));
 }
 
 /******************************************************************************

@@ -24,6 +24,8 @@ Text Domain: attestations
 *  0. You just DO WHAT THE FUCK YOU WANT TO.
 */
 defined('ABSPATH') or die('');
+define('ATTESTATIONS_MENU_SLUG','attestations_settings_page');
+define('ATTESTATIONS_HISTORY_SLUG','attestations_history_page');
 require_once (dirname(__FILE__) . '/includes/functions.php');
 
 function atttestations_install() {
@@ -86,8 +88,8 @@ function attestations_create_menu() {
     if (array_search('3', $l) !== false || array_search('4', $l) !== false) {
         wp_enqueue_script('jquery-ui-datepicker');
         wp_enqueue_style('jquery-ui-css', plugins_url('styles/jquery-ui.css', __FILE__));
-        add_menu_page('Аттестации', 'Аттестации', 'edit_posts', __FILE__, 'attestations_settings_page', 'dashicons-welcome-learn-more');
-        add_submenu_page(__FILE__, 'История оценок', 'История оценок', 'edit_posts', 'attestations_history_page', 'attestations_history_page');
+        add_menu_page('Аттестации', 'Аттестации', 'edit_posts', __FILE__, ATTESTATIONS_MENU_SLUG, 'dashicons-welcome-learn-more');
+        add_submenu_page(__FILE__, 'История оценок', 'История оценок', 'edit_posts', ATTESTATIONS_HISTORY_SLUG, 'attestations_history_page');
     }
 }
 add_action('admin_menu', 'attestations_create_menu');
