@@ -103,6 +103,7 @@ function current_level($level, $d, $calculate_date = '', $nobr = false) {
     $revolution_date = date_create_from_format($date_format, get_revolution_date());
     $now_date = $calculate_date;
     $now_month = $now_date->format('Y') * 12 + $now_date->format('m') - $date->format('Y') * 12 - $date->format('m') - 1;
+    $l_temp = 0;
     //print_r(array($now_month, $attestation_base_month));
     if ($now_month <= $attestation_base_month) {
         $l['str'] = "<span class=red_shadow>" . to_roman(substr($level, 0, 1)) . (strlen($level) > 1 ? substr($level, 1) : '') . "</span>&nbsp;";
@@ -153,7 +154,7 @@ function attestations_current_user_levels()
     get_currentuserinfo();
     if (!$current_user)
         return [];
-    $person_id = intval(get_usermeta($current_user->ID,'attestations_person'));
+    $person_id = intval(get_user_meta($current_user->ID,'attestations_person',true));
     if (!$person_id)
         return [];
     if (isset($attestations_current_user_levels))

@@ -127,7 +127,7 @@ function attestations_settings_page() {
 </form>
 <script type="text/javascript" >
     var levels = <?php echo json_encode($l); ?>;
-    var person_id = <?php echo intval(get_usermeta($current_user->ID, 'attestations_person')); ?>;
+    var person_id = <?php echo intval(get_user_meta($current_user->ID, 'attestations_person', true)); ?>;
     var people;
     var have_level_4 = false;
 
