@@ -122,21 +122,22 @@ function current_level($level, $d, $calculate_date = '', $nobr = false) {
                 $date = $revolution_date->sub(new DateInterval('P' . $delta_month . 'M'));
                 $now_month = $now_date->format('Y') * 12 + $now_date->format('m') - $date->format('Y') * 12 - $date->format('m') - 1;
                 $level_index = array_search($_level, $att_levels);
-                $l_temp = $level_index - floor($now_month / 12);
+                $l_temp = $level_index - ceil($now_month / 12);
                 //	print_r(array('l_temp' => $l_temp,  'level' => $_level, 'level_index' => $level_index, 'now_month' => $now_month, $att_levels));
 
             }
         } else {
             $level_index = array_search($level, $att_levels);
-            $l_temp = $level_index - $now_month / 12 + 3;
+            $l_temp = $level_index - ceil($now_month / 12) + 3;
         }
         if ($l_temp >= 1) {
-            $l['num'] = $att_levels[floor($l_temp)];
+            $l['num'] = $att_levels[$l_temp];
             $l['str'] = to_roman(substr($l['num'], 0, 1)) . (strlen($l['num']) > 1 ? substr($l['num'], 1) : '');
         } else {
             $l['num'] = 0;
             $l['str'] = "n&frasl;a";
         }
+        $date->add(new DateInterval('P'.($level_index-$l_temp+3).'Y1M'));
         $l['str'] = "<span class=red_shadow>{$l['str']}</span><br><span class=txtsm>не подтвержден <b>" . to_roman(substr($level, 0, 1)) . (strlen($level) > 1 ? substr($level, 1) : '') . "</b></span>";
         $l['str'].= "<br><span class=txtsm>до " . $date->format('m') . "/" . ($date->format('Y')) . "</span>";
 
