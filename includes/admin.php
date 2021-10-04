@@ -261,7 +261,7 @@ function attestations_settings_page() {
         if (jQuery('#attestation_level').val() == 1)
             jQuery('.attestation_teacher_'+per+'_3,.attestation_teacher_'+per+'_4').show();
         else if (jQuery('#attestation_level').val() == 6) {
-            if (people['teachers'][per])
+            if (people['teachers'][per] && !Object.entries(people.teachers[per]).every(function(v){return v[1][2] != '4'}))
                 jQuery('.attestation_teacher_'+per + '_4').show();
             else {
                 jQuery('.attestation_teacher_'+per + '_3').show();
@@ -272,7 +272,7 @@ function attestations_settings_page() {
         }
     }
     function valid_teacher(per) {
-        if (have_level_4 && !people['teachers'][per])
+        if (have_level_4 && (!people['teachers'][per] || Object.entries(people.teachers[per]).every(function(v){return v[1][2] != '4'})))
             return true;
         return person_id in people['teachers'][per];
     }
@@ -290,7 +290,7 @@ function attestations_settings_page() {
     jQuery('#attestation_period').change(filter_levels);
     function filter_levels() {
         var per = jQuery('#attestation_period').val();
-        if (have_level_4 && !people['teachers'][per]) {
+        if (have_level_4 && (!people['teachers'][per] || Object.entries(people.teachers[per]).every(function(v){return v[1][2] != '4'}))) {
             jQuery("#attestation_level>option[value!='6']").prop("disabled",true);
             jQuery("#attestation_level>option[value='6']").prop("disabled",false).prop("selected",true);
 
@@ -355,7 +355,14 @@ function attestations_submitted() {
     }
     set_transient(get_current_user_id() . 'attestation_errors', "");
     $allowed = false;
-    if (empty($all_teachers[$period]) && $level == 6) {
+    $have_4_level = false;
+    foreach($all_teachers[$period] as $t) {
+        if ($t == 4) {
+            $have_4_level = true;
+            break;
+        }
+    }
+    if (!$have_4_level && $level == 6) {
         if ($l[$period] == '3' || (array_search('4', $l) !== false)) {
             $allowed = true;
             foreach ($teachers as $t) {

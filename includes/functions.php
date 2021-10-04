@@ -179,7 +179,7 @@ function attestations_current_user_levels()
 
 function get_all_teachers() {
     global $wpdb;
-
+    global $attestation_periods;
 	$results = $wpdb->get_results("SELECT per.name as pname, att.level, att.mark, att.date, att.id_moders, att.id_man, p.name as p2name, city.name as cname, per.web_name, per.id
 					FROM {$wpdb->prefix}attestation as att
 					LEFT JOIN {$wpdb->prefix}period as per on att.id_period=per.id
@@ -187,6 +187,10 @@ function get_all_teachers() {
 					LEFT JOIN {$wpdb->prefix}city as city on p.city_id=city.id
 					WHERE (att.level='3' OR att.level='4') AND att.valid ORDER BY per.sort, city.name, p2name, att.date", ARRAY_N);
 	$teachers = [];
+    get_attestation_periods();
+    foreach ($attestation_periods as $period) {
+        $teachers[$period[2]] = [];
+    }
 	foreach ($results as $row) {
 		$templevel = current_level($row[1], $row[3]);
 		if ($templevel['num'] == '3' || $templevel['num'] == '4') {
